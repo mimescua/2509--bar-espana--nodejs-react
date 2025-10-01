@@ -1,8 +1,11 @@
+import Layout from './components/Layout';
+import Menu from './components/Menu';
+
 function App() {
 	return (
-		<main>
-			<h1 className="text-rose-600">Hello!</h1>
-		</main>
+		<Layout>
+			<Menu />
+		</Layout>
 	);
 }
 
