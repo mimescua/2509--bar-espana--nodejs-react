@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { importMenuFromFile } from '../../services/http';
 
 interface DatabaseRestoreFormProps {
@@ -8,11 +8,22 @@ interface DatabaseRestoreFormProps {
 const DatabaseRestoreForm = ({ onFileUpload }: DatabaseRestoreFormProps) => {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [isUploading, setIsUploading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [success, setSuccess] = useState<string | null>(null);
+	const inputRef = useRef<HTMLInputElement | null>(null);
 
 	const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const file = event.target.files?.[0];
 		if (file) {
+			// basic validation
+			const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+			if (file.size > maxSizeBytes) {
+				setError('El archivo excede 5MB');
+				setSelectedFile(null);
+				return;
+			}
 			setSelectedFile(file);
+			setError(null);
 		}
 	};
 
@@ -20,29 +31,28 @@ const DatabaseRestoreForm = ({ onFileUpload }: DatabaseRestoreFormProps) => {
 		event.preventDefault();
 
 		if (!selectedFile) {
-			alert('Por favor selecciona un archivo');
+			setError('Por favor selecciona un archivo');
 			return;
 		}
 
 		setIsUploading(true);
-
+		setSuccess(null);
+		setError(null);
 		try {
 			const result = await importMenuFromFile(selectedFile);
 			if (onFileUpload) {
 				await onFileUpload(selectedFile);
 			}
 			const successMessage = result?.message ?? 'Base de datos restaurada exitosamente';
-			alert(successMessage);
+			setSuccess(successMessage);
 			setSelectedFile(null);
 
-			const fileInput = document.getElementById('database-file') as HTMLInputElement;
-			if (fileInput) {
-				fileInput.value = '';
+			if (inputRef.current) {
+				inputRef.current.value = '';
 			}
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error ? error.message : 'Error desconocido al restaurar la base de datos';
-			console.error('Error al restaurar la base de datos:', errorMessage);
-			alert(errorMessage);
+			setError(errorMessage);
 		} finally {
 			setIsUploading(false);
 		}
@@ -50,20 +60,16 @@ const DatabaseRestoreForm = ({ onFileUpload }: DatabaseRestoreFormProps) => {
 
 	return (
 		<div className="bg-amber-900/40 border border-amber-500/70 rounded-lg p-6 shadow-lg">
-			<h3 className="text-2xl font-bold text-amber-100 mb-4">
-				Restaurar Base de Datos
-			</h3>
+			<h3 className="text-2xl font-bold text-amber-100 mb-4">Restaurar Base de Datos</h3>
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				<div>
-					<label
-						htmlFor="database-file"
-						className="block text-lg font-semibold text-amber-100 mb-2"
-					>
+					<label htmlFor="database-file" className="block text-lg font-semibold text-amber-100 mb-2">
 						Seleccionar archivo de respaldo
 					</label>
 					<input
 						id="database-file"
+						ref={inputRef}
 						type="file"
 						accept=".sql,.db,.json"
 						onChange={handleFileChange}
@@ -71,9 +77,10 @@ const DatabaseRestoreForm = ({ onFileUpload }: DatabaseRestoreFormProps) => {
 						disabled={isUploading}
 					/>
 					{selectedFile && (
-						<p className="mt-2 text-md text-amber-200 font-medium">
-							Archivo seleccionado: {selectedFile.name}
-						</p>
+						<p className="mt-2 text-md text-amber-200 font-medium">Archivo seleccionado: {selectedFile.name}</p>
+					)}
+					{error && (
+						<p className="mt-2 text-sm text-red-400 bg-red-900/20 border border-red-700 rounded-lg p-2">{error}</p>
 					)}
 				</div>
 
@@ -93,10 +100,16 @@ const DatabaseRestoreForm = ({ onFileUpload }: DatabaseRestoreFormProps) => {
 				</button>
 			</form>
 
+			{success && (
+				<div className="mt-4 p-3 bg-emerald-900/30 border border-emerald-700 rounded-lg text-emerald-200 text-sm">
+					{success}
+				</div>
+			)}
+
 			<div className="mt-4 p-4 bg-amber-950/50 border border-amber-600/70 rounded-lg">
 				<p className="text-md text-amber-100">
-					<strong className="text-amber-50">Advertencia:</strong> Esta acción reemplazará completamente la base de datos actual.
-					Asegúrate de tener un respaldo antes de continuar.
+					<strong className="text-amber-50">Advertencia:</strong> Esta acción reemplazará completamente la base de datos
+					actual. Asegúrate de tener un respaldo antes de continuar.
 				</p>
 			</div>
 		</div>

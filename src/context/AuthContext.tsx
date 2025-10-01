@@ -1,26 +1,17 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { env } from '../config/env';
+import { AuthContext } from './authContext';
 
-interface AuthContextProps {
-	isAuthenticated: boolean;
-	currentView: 'public' | 'admin';
-	login: (code: string) => boolean;
-	logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-
-// Define the access code - you can change this to whatever you want
-const ACCESS_CODE = 'admin123';
+const ACCESS_CODE = env.ADMIN_CODE;
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState(false);
 	const [currentView, setCurrentView] = useState<'public' | 'admin'>('public');
 
-	// Load authentication state from localStorage on mount
 	useEffect(() => {
 		const savedAuth = localStorage.getItem('bar-espana-auth');
 		const savedView = localStorage.getItem('bar-espana-view') as 'public' | 'admin';
-		
+
 		if (savedAuth === 'true') {
 			setIsAuthenticated(true);
 			setCurrentView(savedView || 'admin');
@@ -59,12 +50,4 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 	);
 };
 
-const useAuth = () => {
-	const context = useContext(AuthContext);
-	if (context === undefined) {
-		throw new Error('useAuth must be used within an AuthProvider');
-	}
-	return context;
-};
-
-export { AuthProvider, useAuth };
+export { AuthProvider };

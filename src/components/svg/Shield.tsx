@@ -1,9 +1,14 @@
 import React from 'react';
 
 const Shield: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-	<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-4 h-4"
+	<svg
+		viewBox="0 0 24 24"
+		xmlns="http://www.w3.org/2000/svg"
+		className="w-4 h-4"
 		fill="none"
-		stroke="currentColor" {...props}>
+		stroke="currentColor"
+		{...props}
+	>
 		<path
 			strokeLinecap="round"
 			strokeLinejoin="round"

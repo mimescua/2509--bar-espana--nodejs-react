@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../hooks/useAuth';
 
 interface LoginModalProps {
 	isOpen: boolean;
@@ -23,7 +23,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 		setError('');
 
 		if (code.trim() === '') {
-			setError('Por favor ingresaR un código de acceso');
+			setError('Por favor ingresar un código de acceso');
 			return;
 		}
 
@@ -52,6 +52,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 					<button
 						onClick={onClose}
 						className="text-amber-400 hover:text-amber-200 transition-colors"
+						aria-label="Cerrar"
 					>
 						<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -61,9 +62,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
 				{isAuthenticated ? (
 					<div className="space-y-4">
-						<p className="text-amber-300">
-							Estas a punto de salir del modo administrador
-						</p>
+						<p className="text-amber-300">Estas a punto de salir del modo administrador</p>
 						<button
 							onClick={handleLogout}
 							className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors duration-200"
@@ -89,9 +88,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 						</div>
 
 						{error && (
-							<div className="text-red-400 text-sm bg-red-900/20 border border-red-700 rounded-lg p-2">
-								{error}
-							</div>
+							<div className="text-red-400 text-sm bg-red-900/20 border border-red-700 rounded-lg p-2">{error}</div>
 						)}
 
 						<div className="flex gap-3">

@@ -2,7 +2,7 @@ import Banner from './components/Banner';
 import DatabaseRestoreForm from './components/DatabaseRestoreForm';
 import Layout from './components/Layout';
 import Menu from './components/Menu';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './hooks/useAuth';
 
 function App() {
 	const { isAuthenticated, currentView } = useAuth();
@@ -11,12 +11,12 @@ function App() {
 		<Layout>
 			{isAuthenticated && currentView === 'admin' ? (
 				<div className="space-y-6">
-					<Banner message={"Restaurar base de datos"} />
+					<Banner message={'Restaurar base de datos'} />
 					<DatabaseRestoreForm />
 				</div>
 			) : (
 				<div className="space-y-6">
-					<Banner message={"Especialidad en comidas caseras y tapas variadas"} />
+					<Banner message={'Especialidad en comidas caseras y tapas variadas'} />
 					<Menu />
 				</div>
 			)}
