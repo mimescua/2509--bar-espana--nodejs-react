@@ -1,30 +1,33 @@
+import type { ProductByCategory } from '../../types';
 import { API_URL } from '../config/constants';
 
-export function getMenu() {
+export interface FecthResult {
+	message?: string;
+	error?: string;
+}
+
+export function getMenu(): Promise<ProductByCategory> {
 	return fetch(`${API_URL}/menu`)
 		.then((res) => res.json())
 		.then((data) => {
 			const { menu } = data;
-			return menu;
+			return menu as ProductByCategory;
 		});
 }
 
-export function getCategories() {
-	return fetch(`${API_URL}/categories`)
-		.then((res) => res.json())
-		.then((data) => {
-			// const { category } = data;
-			// return category;
-			return data;
-		});
-}
+export async function importMenuFromFile(file: File): Promise<FecthResult> {
+	const formData = new FormData();
+	formData.append('data', file, file.name);
 
-export function getProducts() {
-	return fetch(`${API_URL}/products`)
-		.then((res) => res.json())
-		.then((data) => {
-			// const { category } = data;
-			// return category;
-			return data;
-		});
+	const res = await fetch(`${API_URL}/menu/import-menu`, {
+		method: 'POST',
+		body: formData,
+	});
+
+	if (!res.ok) {
+		const text = await res.text();
+		throw new Error(`Error ${res.status}: ${text}`);
+	}
+
+	return res.json() as Promise<FecthResult>;
 }
